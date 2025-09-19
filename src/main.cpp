@@ -1,78 +1,87 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
+#include <math.h>
 
-Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(0x40);
+// PCA9685 Setup
+Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
-#define S1_J1 0
-#define S1_J2 1
-#define S1_J3 2
+#define L1 26.0   // Basissegment / Höhe
+#define L2 40.0   // Oberarm
+#define L3 135.0   // Unterarm
 
-// Length
-#define L2 40
-#define L3 135
+#define OFFSET_SERVO2 75.0
+#define OFFSET_SERVO3 60.0
 
-#define SERVO_MIN 150
-#define SERVO_MAX 600
+#define SERVO_MIN 150 // PCA9685 min PWM
+#define SERVO_MAX 600 // PCA9685 max PWM
 
-void setServo(int channel, float degrees)
-{
-  degrees = constrain(degrees, 0, 180);
-  int pulse = map((int)degrees, 0, 180, SERVO_MIN, SERVO_MAX);
-  pwm.setPWM(channel, 0, pulse);
+int degToPWM(int deg) {
+  return map(deg, 0, 180, SERVO_MIN, SERVO_MAX);
 }
 
-struct ServoAngles
-{
-  int phiJ1;
-  int phiJ2;
-  int phiJ3;
-};
 
-ServoAngles calculate(int x, int y, int z)
-{
-  ServoAngles result;
-  double yzLength, phiB, phiA;
-  yzLength = sqrt(y * y + z * z);
+void solveIK(double x, double y, double z, int &servo1, int &servo2, int &servo3) {
+  double phi1 = atan2(y, x);
+  double P1_x = L1 * cos(phi1);
+  double P1_y = L1 * sin(phi1);
+  double P1_z = 0;
+  double x_rel = sqrt(pow(x - P1_x, 2) + pow(y - P1_y, 2));
+  double z_rel = z - P1_z;
+  double D = (pow(x_rel, 2) + pow(z_rel, 2) - pow(L2, 2) - pow(L3, 2)) / (2 * L2 * L3);
+  D = constrain(D, -1, 1);
+  double phi3 = -acos(D);
+  double phi2 = atan2(z_rel, x_rel) - atan2(L3 * sin(phi3), L2 + L3 * cos(phi3));
 
-  phiB = acos((yzLength * yzLength + L2 * L2 - L3 * L3) / (2 * yzLength * L2));
-  phiA = atan(z / y);
-
-  result.phiJ3 = acos((L2 * L2 + L3 * L3 - yzLength * yzLength) / (2 * L2 * L3));
-  result.phiJ2 = phiB - phiA;
+  // Servo Winkel berechnen (0-180)
+  servo1 = round(phi1 * 180.0 / M_PI);                  
+  servo2 = round(OFFSET_SERVO2 - (-phi2 * 180.0 / M_PI)); 
+  servo3 = round(OFFSET_SERVO3 - (phi3 * 180.0 / M_PI));  
+  servo1 = constrain(servo1, 0, 180);
+  servo2 = constrain(servo2, 0, 180);
+  servo3 = constrain(servo3, 0, 180);
 }
 
-void setup()
-{
-  Serial.begin(115200);
+void setup() {
+  Serial.begin(9600);
   pwm.begin();
   pwm.setPWMFreq(50);
 
-  // Startposition
-  setServo(S1_J1, 90);
-  setServo(S1_J2, 90);
-  setServo(S1_J3, 90);
+  Serial.print("Gib Zielkoordinaten ein im Format: X Y Z\n");
 }
 
-void loop()
-{
-  if (Serial.available())
-  {
+void loop() {
+  // Nur weiter wenn seriell Daten verfügbar
+  if (Serial.available()) {
     String input = Serial.readStringUntil('\n');
+    input.trim();
 
-    int bIndex = input.indexOf("B:");
-    int sIndex = input.indexOf("S:");
-    int eIndex = input.indexOf("E:");
+    if (input.length() == 0) return;
 
-    if (bIndex >= 0 && sIndex >= 0 && eIndex >= 0)
-    {
-      int J1 = input.substring(bIndex + 2, input.indexOf(';', bIndex)).toInt();
-      int J2 = input.substring(sIndex + 2, input.indexOf(';', sIndex)).toInt();
-      int J3 = input.substring(eIndex + 2, input.indexOf(';', eIndex)).toInt();
+    // Splitten nach Leerzeichen
+    int firstSpace = input.indexOf(' ');
+    int secondSpace = input.lastIndexOf(' ');
 
-      setServo(S1_J1, J1);
-      setServo(S1_J2, J2);
-      setServo(S1_J3, J3);
+    if (firstSpace == -1 || secondSpace == -1 || firstSpace == secondSpace) {
+      Serial.print("Ungültiges Format. Beispiel: 100 50 50\n");
+      return;
     }
+
+    double x = input.substring(0, firstSpace).toFloat();
+    double y = input.substring(firstSpace + 1, secondSpace).toFloat();
+    double z = input.substring(secondSpace + 1).toFloat();
+
+    int s1, s2, s3;
+    solveIK(x, y, z, s1, s2, s3);
+
+    Serial.print("Servo1: "); Serial.print(s1);
+    Serial.print(" Servo2: "); Serial.print(s2);
+    Serial.print(" Servo3: "); Serial.println(s3);
+
+    // PWM senden
+    pwm.setPWM(0, 0, degToPWM(s1));
+    pwm.setPWM(1, 0, degToPWM(s2));
+    pwm.setPWM(2, 0, degToPWM(s3));
   }
 }
+

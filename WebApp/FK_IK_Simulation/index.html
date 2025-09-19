@@ -7,174 +7,337 @@
     <script src="https://cdn.tailwindcss.com"></script>
   </head>
 
-  <body
-    class="flex flex-col items-center justify-center min-h-screen bg-gray-200 p-4"
-  >
-    <div class="text-center mb-8 space-y-4">
-      <h1 class="text-3xl font-bold">Hexapod</h1>
-      <div class="flex gap-8">
-        <div class="flex flex-col">
-          <h1 class="font-bold p-4">FK: Denavit-Hartenberg-Transformation</h1>
+  <body class="flex h-screen text-white bg-gray-900 p-4">
+    <!-- Linke Seite: scrollbarer Inhalt -->
+    <div class="flex-1 overflow-y-auto pr-4">
+      <!-- Überschrit -->
+      <div class="w-full mb-4">
+        <h1 class="text-center font-bold text-3xl text-white">
+          Hexapod Simulation
+        </h1>
+      </div>
+
+      <div class="flex gap-6 items-start mb-4 w-full">
+        <!-- Konstanten -->
+        <div
+          class="flex flex-col bg-gray-800 gap-4 p-2 rounded-lg border border-white w-1/2"
+        >
+          <div><h2 class="text-white">Konstanten</h2></div>
           <div class="flex gap-4">
-            <!-- Segment J0 → J1 -->
-            <div class="border border-gray-400 rounded p-2">
-              <label class="flex flex-col items-center">
-                L1:
-                <input
-                  type="number"
-                  id="lengthInputL1"
-                  value="26"
-                  step="1"
-                  class="border rounded w-32 px-2 py-1 mt-1"
-                />
-              </label>
-              <label class="flex flex-col items-center">
-                φ1:
-                <input
-                  type="range"
-                  id="angleSliderL1"
-                  min="-180"
-                  max="180"
-                  value="90"
-                  class="mt-1"
-                />
-                <span id="angleValueL1">90°</span>
-              </label>
+            <div class="flex flex-col">
+              <label
+                for="lengthInputL1"
+                class="text-white text-sm font-medium mb-1"
+                >L1</label
+              >
+              <input
+                type="number"
+                id="lengthInputL1"
+                value="26"
+                step="1"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              />
             </div>
-
-            <!-- Segment J1 → J2 -->
-            <div class="border border-gray-400 rounded p-2">
-              <label class="flex flex-col items-center">
-                L2:
-                <input
-                  type="number"
-                  id="lengthInput"
-                  value="40"
-                  step="1"
-                  class="border rounded w-32 px-2 py-1 mt-1"
-                />
-              </label>
-              <label class="flex flex-col items-center">
-                φ2:
-                <input
-                  type="range"
-                  id="angleSlider"
-                  min="-180"
-                  max="180"
-                  value="0"
-                  class="mt-1"
-                />
-                <span id="angleValue">0°</span>
-              </label>
+            <div class="flex flex-col">
+              <label
+                for="lengthInput"
+                class="text-white text-sm font-medium mb-1"
+                >L2</label
+              >
+              <input
+                type="number"
+                id="lengthInput"
+                value="40"
+                step="1"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              />
             </div>
-
-            <!-- Segment J2 → J3 -->
-            <div class="border border-gray-400 rounded p-2">
-              <label class="flex flex-col items-center">
-                L3:
-                <input
-                  type="number"
-                  id="lengthInput2"
-                  value="135"
-                  step="1"
-                  class="border rounded w-32 px-2 py-1 mt-1"
-                />
-              </label>
-              <label class="flex flex-col items-center">
-                φ3:
-                <input
-                  type="range"
-                  id="angleSlider2"
-                  min="-180"
-                  max="180"
-                  value="0"
-                  class="mt-1"
-                />
-                <span id="angleValue2">0°</span>
-              </label>
+            <div class="flex flex-col">
+              <label
+                for="lengthInput2"
+                class="text-white text-sm font-medium mb-1"
+                >L3</label
+              >
+              <input
+                type="number"
+                id="lengthInput2"
+                value="135"
+                step="1"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              />
             </div>
           </div>
         </div>
 
-        <!-- IK-Solver -->
-        <div class="flex flex-col">
-          <h1 class="font-bold p-4">IK Solver</h1>
-          <div class="flex">
-            <div class="flex border border-gray-400 rounded p-2">
-            <!-- Endpoint Inputs -->
-              <div class="flex flex-col p-2">
-                <h2 class="font-semibold">P3</h2>
-                <div class="flex">
-                  <label class="flex items-center pr-4">X:</label>
-                  <input
-                    type="number"
-                    id="ikX"
-                    value="-0"
-                    class="border rounded w-32 px-2 py-1 mt-1"
-                  />
-                </div>
-                <div class="flex">
-                  <label class="flex items-center pr-4">Y:</label>
-                  <input
-                    type="number"
-                    id="ikY"
-                    value="100"
-                    class="border rounded w-32 px-2 py-1 mt-1"
-                  />
-                </div>
-                <div class="flex">
-                  <label class="flex items-center pr-4">Z:</label>
-                  <input
-                    type="number"
-                    id="ikZ"
-                    value="-100"
-                    class="border rounded w-32 px-2 py-1 mt-1"
-                  />
-                </div>
-              </div>
-              <!-- DebugWerte -->
-              <div class="flex flex-col gap-2 rounded p-2">
-                <h2 class="font-semibold">Berechnete Winkel</h2>
+        <!-- Checkboxen daneben -->
+        <div
+          class="flex flex-col bg-gray-800 gap-4 p-2 rounded-lg border border-white w-1/2"
+        >
+          <div><h2 class="text-white">Debug</h2></div>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="toggleWorkspace" />
+            <span>Bewegungsraum plotten</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input type="checkbox" id="toggleAxes" checked />
+            <span>Koordinatensysteme anzeigen</span>
+          </label>
+        </div>
+      </div>
 
+      <!-- Forward Kinematics -->
+      <div class="bg-gray-800 p-4 rounded-lg border border-white mb-4">
+        <h2 class="text-white font-semibold mb-2">
+          FK: Denavit-Hartenberg-Transformation
+        </h2>
+        <div class="flex gap-4">
+          <label class="flex flex-col items-center">
+            φ1:
+            <input
+              type="range"
+              id="angleSliderL1"
+              min="0"
+              max="180"
+              value="90"
+              class="mt-1"
+            />
+            <span id="angleValueL1">90°</span>
+          </label>
+          <label class="flex flex-col items-center">
+            φ2:
+            <input
+              type="range"
+              id="angleSlider"
+              min="-105"
+              max="75"
+              value="0"
+              class="mt-1"
+            />
+            <span id="angleValue">0°</span>
+          </label>
+          <label class="flex flex-col items-center">
+            φ3:
+            <input
+              type="range"
+              id="angleSlider2"
+              min="-120"
+              max="60"
+              value="0"
+              class="mt-1"
+            />
+            <span id="angleValue2">0°</span>
+          </label>
+        </div>
+      </div>
 
-                <div>φ1: <span id="phi1IK">-</span>°</div>
-                <div>φ2: <span id="phi2IK">-</span>°</div>
-                <div>φ3: <span id="phi3IK">-</span>°</div>
+      <!-- IK Solver -->
+      <div class="bg-gray-800 p-4 rounded-lg border border-white mb-4">
+        <h2 class="text-white font-semibold mb-2">IK Solver: Geometrischer/Analytischer IK</h2>
+
+        <div class="flex flex-col gap-4">
+          <!-- Endpoint Inputs -->
+          <div class="flex gap-4 flex-wrap">
+            <div class="flex flex-col p-2 bg-gray-700 rounded">
+              <h3 class="font-semibold text-white">P3</h3>
+              <div class="flex gap-2 items-center">
+                <label>X:</label
+                ><input
+                  type="number"
+                  id="ikX"
+                  value="0"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+                />
               </div>
+              <div class="flex gap-2 items-center">
+                <label>Y:</label
+                ><input
+                  type="number"
+                  id="ikY"
+                  value="100"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+                />
+              </div>
+              <div class="flex gap-2 items-center">
+                <label>Z:</label
+                ><input
+                  type="number"
+                  id="ikZ"
+                  value="-100"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+                />
+              </div>
+            </div>
+
+            <!-- Debug Werte -->
+            <div class="flex flex-col gap-2 p-2 bg-gray-700 rounded">
+              <h3 class="font-semibold text-white">Berechnete Winkel</h3>
+              <div>φ1: <span id="phi1IK">-</span>°</div>
+              <div>φ2: <span id="phi2IK">-</span>°</div>
+              <div>φ3: <span id="phi3IK">-</span>°</div>
+            </div>
+
+            <!-- Servo Werte -->
+            <div class="flex flex-col gap-2 p-2 bg-gray-700 rounded">
+              <h3 class="font-semibold text-white">Servo Winkel</h3>
+              <div>φ1: <span id="phi1Servo">-</span>°</div>
+              <div>φ2: <span id="phi2Servo">-</span>°</div>
+              <div>φ3: <span id="phi3Servo">-</span>°</div>
+            </div>
+
+            <!-- Arduino Steuerung -->
+            <div class="flex flex-col gap-2 p-2 bg-gray-700 rounded">
+              <h3 class="font-semibold text-white">Steuerung via Arduino</h3>
+              <div>S1: <span id="Servo1">-</span>°</div>
+              <div>S2: <span id="Servo2">-</span>°</div>
+              <div>S3: <span id="Servo3">-</span>°</div>
+              <button
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
+                onclick="sendCoordinates()"
+              >
+                Senden
+              </button>
+              <button
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
+                onclick="connectSerial()"
+              >
+                Verbinden
+              </button>
+              <textarea
+                id="serialLog"
+                class="border rounded w-64 h-32 mt-2 p-2"
+                readonly
+              ></textarea>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Bezier berechnung -->
+      <div style="display: flex; gap: 50px">
+        <!-- Inputs für Bézier-Punkte -->
+         <h2>kubische Bèzier-Kurve mit Bernstein-Polynomen</h2>
+        <div>
+          <div class="point-input">
+            P0: x=<input
+              type="number"
+              id="x0"
+              value="-50"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+            y=<input
+              type="number"
+              id="y0"
+              value="120"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+            z=<input
+              type="number"
+              id="z0"
+              value="-100"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+          </div>
+          <div class="point-input">
+            P1: x=<input
+              type="number"
+              id="x1"
+              value="-20"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+            y=<input
+              type="number"
+              id="y1"
+              value="120"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+            z=<input
+              type="number"
+              id="z1"
+              value="-80"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+          </div>
+          <div class="point-input">
+            P2: x=<input
+              type="number"
+              id="x2"
+              value="20"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+            y=<input
+              type="number"
+              id="y2"
+              value="120"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+            z=<input
+              type="number"
+              id="z2"
+              value="-80"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+          </div>
+          <div class="point-input">
+            P3: x=<input
+              type="number"
+              id="x3"
+              value="50"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+            y=<input
+              type="number"
+              id="y3"
+              value="120"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+            z=<input
+              type="number"
+              id="z3"
+              value="-100"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+            />
+          </div>
+          <button
+            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
+            onclick="drawAndCheckCurve()"
+          >
+            Kurve prüfen & zeichnen
+          </button>
+        </div>
+
+        <!-- Plot-Bereich -->
+        <div
+          class="bg-red-200"
+          id="plot"
+          style="width: 400px; height: 400px"
+        ></div>
+        <h3>Servo-Debug-Tabelle</h3>
+        <table id="debugTable" class="border border-white">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>X</th>
+              <th>Y</th>
+              <th>Z</th>
+              <th>φ1_raw</th>
+              <th>φ2_raw</th>
+              <th>φ3_raw</th>
+              <th>φ1</th>
+              <th>φ2</th>
+              <th>φ3</th>
+              <th>erreichbar?</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
 
-    <!-- Checkboxen -->
-    <div class="flex gap-4 mt-2">
-      <label class="flex items-center gap-2">
-        <input type="checkbox" id="toggleWorkspace" />
-        <span>Bewegungsraum plotten</span>
-      </label>
-      <label class="flex items-center gap-2">
-        <input type="checkbox" id="toggleAxes" checked />
-        <span>Koordinatensysteme anzeigen</span>
-      </label>
-    </div>
-
-    <!-- Plot-Bereich -->
-    <div
-      class="flex flex-col md:flex-row justify-center items-center gap-8 mt-4"
-    >
-      <div
-        id="plot3d"
-        class="w-96 h-96 md:w-[500px] md:h-[500px] bg-white shadow rounded"
-      ></div>
-      <div
-        id="plotYZ"
-        class="w-96 h-96 md:w-[500px] md:h-[500px] bg-white shadow rounded"
-      ></div>
-      <div
-        id="plotXY"
-        class="w-96 h-96 md:w-[500px] md:h-[500px] bg-white shadow rounded"
-      ></div>
+    <!-- Rechte Seite: Diagramme untereinander -->
+    <div class="w-[320px] flex flex-col gap-4">
+      <div id="plot3d" class="w-full h-[300px] bg-white shadow rounded"></div>
+      <div id="plotYZ" class="w-full h-[300px] bg-white shadow rounded"></div>
+      <div id="plotXY" class="w-full h-[300px] bg-white shadow rounded"></div>
     </div>
 
     <script src="js/constants.js"></script>
@@ -183,5 +346,7 @@
     <script src="js/plot.js"></script>
     <script src="js/ikSolver.js"></script>
     <script src="js/main.js"></script>
+    <script src="js/serialConnection.js"></script>
+    <script src="js/bezierSim.js"></script>
   </body>
 </html>

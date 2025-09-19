@@ -13,14 +13,14 @@ function updateVectorsDH() {
 
   const T1 = dhMatrix(phi1, 0, L1, 90);
   const T01 = T1;
-  const T2 = dhMatrix(phi2, 0, L2, 0);
+  const T2 = dhMatrix(-phi2, 0, L2, 0);
   const T02 = matMul(T01, T2);
   const T3 = dhMatrix(phi3, 0, L3, 0);
   const T03 = matMul(T02, T3);
 
-  const J0 = [0, 0, 0],
-    J1 = getPos(T01),
-    J2 = getPos(T02),
-    J3 = getPos(T03);
-  return { J0, J1, J2, J3, T01, T02, T03 };
+  const P0 = [0, 0, 0],
+    P1 = getPos(T01),
+    P2 = getPos(T02),
+    P3 = getPos(T03);
+  return { P0, P1, P2, P3, T01, T02, T03 };
 }

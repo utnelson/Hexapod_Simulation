@@ -20,14 +20,15 @@ ikX.addEventListener("input", solveIKDebug);
 ikY.addEventListener("input", solveIKDebug);
 ikZ.addEventListener("input", solveIKDebug);
 
-angleSliderL1.addEventListener("input", updateP3FromAngles);
-angleSlider.addEventListener("input", updateP3FromAngles);
-angleSlider2.addEventListener("input", updateP3FromAngles);
 
-lengthInputL1.addEventListener("input", updateP3FromAngles);
-lengthInput.addEventListener("input", updateP3FromAngles);
-lengthInput2.addEventListener("input", updateP3FromAngles);
+angleSliderL1.addEventListener("input", updateP3);
+angleSlider.addEventListener("input", updateP3);
+angleSlider2.addEventListener("input", updateP3);
+
+lengthInputL1.addEventListener("input", updateP3);
+lengthInput.addEventListener("input", updateP3);
+lengthInput2.addEventListener("input", updateP3);
 
 // Start
-solveIKDebug();
+updateP3();
 plotAll();
