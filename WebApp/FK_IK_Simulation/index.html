@@ -132,79 +132,132 @@
 
       <!-- IK Solver -->
       <div class="bg-gray-800 p-4 rounded-lg border border-white mb-4">
-        <h2 class="text-white font-semibold mb-2">IK Solver: Geometrischer/Analytischer IK</h2>
+        <h2 class="font-semibold mb-2">
+          IK Solver: Geometrischer/Analytischer IK
+        </h2>
 
-        <div class="flex flex-col gap-4">
+        <!-- Container für Endpoint + Debug + Servo -->
+        <div class="flex flex-row gap-4">
           <!-- Endpoint Inputs -->
-          <div class="flex gap-4 flex-wrap">
-            <div class="flex flex-col p-2 bg-gray-700 rounded">
-              <h3 class="font-semibold text-white">P3</h3>
-              <div class="flex gap-2 items-center">
-                <label>X:</label
-                ><input
+          <div class="flex flex-col p-2 bg-gray-700 rounded w-64">
+            <h3 class="font-semibold text-white mb-2">P3 - Endpoint</h3>
+
+            <div class="flex flex-col gap-2">
+              <div class="flex items-center gap-2">
+                <label for="ikX" class="w-6 text-white">X:</label>
+                <input
                   type="number"
                   id="ikX"
                   value="0"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-24 p-2.5"
                 />
               </div>
-              <div class="flex gap-2 items-center">
-                <label>Y:</label
-                ><input
+
+              <div class="flex items-center gap-2">
+                <label for="ikY" class="w-6 text-white">Y:</label>
+                <input
                   type="number"
                   id="ikY"
                   value="100"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-24 p-2.5"
                 />
               </div>
-              <div class="flex gap-2 items-center">
-                <label>Z:</label
-                ><input
+
+              <div class="flex items-center gap-2">
+                <label for="ikZ" class="w-6 text-white">Z:</label>
+                <input
                   type="number"
                   id="ikZ"
                   value="-100"
-                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-24 p-2.5"
                 />
               </div>
             </div>
+          </div>
 
-            <!-- Debug Werte -->
-            <div class="flex flex-col gap-2 p-2 bg-gray-700 rounded">
-              <h3 class="font-semibold text-white">Berechnete Winkel</h3>
-              <div>φ1: <span id="phi1IK">-</span>°</div>
-              <div>φ2: <span id="phi2IK">-</span>°</div>
-              <div>φ3: <span id="phi3IK">-</span>°</div>
-            </div>
+          <!-- Debug Werte -->
+          <div class="flex flex-col gap-2 p-2 bg-gray-700 rounded w-48">
+            <h3 class="font-semibold text-white">Berechnete Winkel</h3>
+            <div>φ1: <span id="phi1IK">-</span>°</div>
+            <div>φ2: <span id="phi2IK">-</span>°</div>
+            <div>φ3: <span id="phi3IK">-</span>°</div>
+          </div>
 
-            <!-- Servo Werte -->
-            <div class="flex flex-col gap-2 p-2 bg-gray-700 rounded">
-              <h3 class="font-semibold text-white">Servo Winkel</h3>
-              <div>φ1: <span id="phi1Servo">-</span>°</div>
-              <div>φ2: <span id="phi2Servo">-</span>°</div>
-              <div>φ3: <span id="phi3Servo">-</span>°</div>
-            </div>
+          <!-- Servo Werte -->
+          <div class="flex flex-col gap-2 p-2 bg-gray-700 rounded w-48">
+            <h3 class="font-semibold text-white">Servo Winkel</h3>
+            <div>φ1: <span id="phi1Servo">-</span>°</div>
+            <div>φ2: <span id="phi2Servo">-</span>°</div>
+            <div>φ3: <span id="phi3Servo">-</span>°</div>
+          </div>
+        </div>
 
-            <!-- Arduino Steuerung -->
-            <div class="flex flex-col gap-2 p-2 bg-gray-700 rounded">
-              <h3 class="font-semibold text-white">Steuerung via Arduino</h3>
-              <div>S1: <span id="Servo1">-</span>°</div>
-              <div>S2: <span id="Servo2">-</span>°</div>
-              <div>S3: <span id="Servo3">-</span>°</div>
-              <button
-                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
-                onclick="sendCoordinates()"
-              >
-                Senden
-              </button>
+        <!-- Arduino Steuerung -->
+        <div class="flex flex-col gap-2 p-2 bg-gray-700 rounded mt-4">
+          <h3 class="font-semibold text-white mb-2">Steuerung via Arduino</h3>
+
+          <!-- Grid mit 3 Spalten -->
+          <div class="grid grid-cols-[1fr_1.5fr_2fr] gap-4 items-start">
+            <!-- Spalte 1: Buttons -->
+            <div class="flex flex-col gap-2">
               <button
                 class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
                 onclick="connectSerial()"
               >
                 Verbinden
               </button>
+              <button
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
+                onclick="sendCoordinates()"
+              >
+                GO to P3 - Endpoint
+              </button>
+              <button
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
+                onclick="sendHome()"
+              >
+                Home
+              </button>
+              <button
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
+                onclick="sendWalk()"
+              >
+                Walk with Bèzier Values
+              </button>
+              <div class="flex flex-row gap-2">
+              Speed:<input
+                type="number"
+                id="speed"
+                value="0.02"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
+              />
+              Delay ms:<input
+                type="number"
+                id="delay"
+                value="30"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
+              />
+              </div>
+              <button
+                class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
+                onclick="sendStop()"
+              >
+                Stop
+              </button>
+            </div>
+
+            <!-- Spalte 2: Werte (extra breit) -->
+            <div class="flex flex-col gap-1 text-white">
+              <div>S1: <span id="Servo1">-</span>°</div>
+              <div>S2: <span id="Servo2">-</span>°</div>
+              <div>S3: <span id="Servo3">-</span>°</div>
+            </div>
+
+            <!-- Spalte 3: Serial Monitor -->
+            <div>
               <textarea
                 id="serialLog"
-                class="border rounded w-64 h-32 mt-2 p-2"
+                class="border text-black rounded w-full h-32 p-2"
                 readonly
               ></textarea>
             </div>
@@ -213,28 +266,33 @@
       </div>
 
       <!-- Bezier berechnung -->
-      <div style="display: flex; gap: 50px">
+      <div class="bg-gray-800 p-4 rounded-lg border border-white mb-4">
         <!-- Inputs für Bézier-Punkte -->
-         <h2>kubische Bèzier-Kurve mit Bernstein-Polynomen</h2>
-        <div>
+        <h2 class="font-semibold mb-2">
+          kubische Bèzier-Kurve mit Bernstein-Polynomen
+        </h2>
+
+        <!-- Eingaben -->
+        <div class="bg-gray-700 rounded mb-4 p-2">
+          <span>Bèzier Punkte</span>
           <div class="point-input">
             P0: x=<input
               type="number"
               id="x0"
               value="-50"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
             y=<input
               type="number"
               id="y0"
               value="120"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
             z=<input
               type="number"
               id="z0"
               value="-100"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
           </div>
           <div class="point-input">
@@ -242,19 +300,19 @@
               type="number"
               id="x1"
               value="-20"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
             y=<input
               type="number"
               id="y1"
               value="120"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
             z=<input
               type="number"
               id="z1"
               value="-80"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
           </div>
           <div class="point-input">
@@ -262,19 +320,19 @@
               type="number"
               id="x2"
               value="20"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
             y=<input
               type="number"
               id="y2"
               value="120"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
             z=<input
               type="number"
               id="z2"
               value="-80"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
           </div>
           <div class="point-input">
@@ -282,54 +340,63 @@
               type="number"
               id="x3"
               value="50"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
             y=<input
               type="number"
               id="y3"
               value="120"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
             z=<input
               type="number"
               id="z3"
               value="-100"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-2.5"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg w-16 p-1"
             />
           </div>
-          <button
-            class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded"
-            onclick="drawAndCheckCurve()"
-          >
-            Kurve prüfen & zeichnen
-          </button>
         </div>
 
-        <!-- Plot-Bereich -->
-        <div
-          class="bg-red-200"
-          id="plot"
-          style="width: 400px; height: 400px"
-        ></div>
-        <h3>Servo-Debug-Tabelle</h3>
-        <table id="debugTable" class="border border-white">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>X</th>
-              <th>Y</th>
-              <th>Z</th>
-              <th>φ1_raw</th>
-              <th>φ2_raw</th>
-              <th>φ3_raw</th>
-              <th>φ1</th>
-              <th>φ2</th>
-              <th>φ3</th>
-              <th>erreichbar?</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+        <button
+          class="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1 px-3 rounded mb-4"
+          onclick="drawAndCheckCurve()"
+        >
+          erstelle Bèzier-Kurve
+        </button>
+
+        <!-- Plot und Tabelle nebeneinander -->
+        <div class="flex gap-4">
+          <!-- Plot-Bereich -->
+          <div id="plot" style="width: 400px; height: 400px"></div>
+
+          <!-- Tabelle -->
+          <div class="overflow-x-auto">
+            <h3 class="text-white mb-2">Servo-Debug-Tabelle</h3>
+            <table
+              id="debugTable"
+              class="border border-white border-dotted text-center w-full"
+            >
+              <thead class="bg-gray-600">
+                <tr>
+                  <th class="border border-white border-dotted p-1">#</th>
+                  <th class="border border-white border-dotted p-1">X</th>
+                  <th class="border border-white border-dotted p-1">Y</th>
+                  <th class="border border-white border-dotted p-1">Z</th>
+                  <th class="border border-white border-dotted p-1">φ1_raw</th>
+                  <th class="border border-white border-dotted p-1">φ2_raw</th>
+                  <th class="border border-white border-dotted p-1">φ3_raw</th>
+                  <th class="border border-white border-dotted p-1">φ1</th>
+                  <th class="border border-white border-dotted p-1">φ2</th>
+                  <th class="border border-white border-dotted p-1">φ3</th>
+                  <th class="border border-white border-dotted p-1">
+                    erreichbar?
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="text-white"></tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
 

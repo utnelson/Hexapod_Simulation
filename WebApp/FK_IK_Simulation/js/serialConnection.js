@@ -61,7 +61,68 @@ async function sendCoordinates() {
     alert("Bitte gültige Zahlen für X, Y und Z eingeben!");
     return;
   }
-  const cmd = `${x} ${y} ${z}\n`;
+  const cmd = `go ${x} ${y} ${z}\n`;
+  await writer.write(new TextEncoder().encode(cmd));
+  console.log("Gesendet:", cmd);
+  appendSerialLog("Gesendet: " + cmd);
+}
+
+async function sendHome() {
+  if (!writer) {
+    alert("Bitte erst verbinden!");
+    return;
+  }
+  const cmd = "home\n";
+  await writer.write(new TextEncoder().encode(cmd));
+  console.log("Gesendet:", cmd);
+  appendSerialLog("Gesendet: " + cmd);
+}
+
+async function sendStop() {
+  if (!writer) {
+    alert("Bitte erst verbinden!");
+    return;
+  }
+  const cmd = "stop\n";
+  await writer.write(new TextEncoder().encode(cmd));
+  console.log("Gesendet:", cmd);
+  appendSerialLog("Gesendet: " + cmd);
+}
+
+async function sendWalk() {
+  if (!writer) {
+    alert("Bitte erst verbinden!");
+    return;
+  }
+
+  // Punkte auslesen
+  const points = [];
+  for (let i = 0; i <= 3; i++) {
+    const x = parseFloat(document.getElementById(`x${i}`).value);
+    const y = parseFloat(document.getElementById(`y${i}`).value);
+    const z = parseFloat(document.getElementById(`z${i}`).value);
+
+    if (isNaN(x) || isNaN(y) || isNaN(z)) {
+      alert(`Bitte gültige Zahlen für P${i} eingeben!`);
+      return;
+    }
+
+    points.push(`${x} ${y} ${z}`);
+  }
+
+  // Speed und Delay auslesen
+  const speed = parseFloat(document.getElementById("speed").value);
+  const delay = parseInt(document.getElementById("delay").value);
+
+  if (isNaN(speed) || isNaN(delay)) {
+    alert("Bitte gültige Werte für Speed und Delay eingeben!");
+    return;
+  }
+
+  
+  //const cmd = `walk ${points.join(" ")} ${speed} ${delay}\n`;
+  const cmd = `walk ${points.join(" ")}\n`;
+
   await writer.write(new TextEncoder().encode(cmd));
   console.log("Gesendet:", cmd);
   appendSerialLog("Gesendet: " + cmd);
