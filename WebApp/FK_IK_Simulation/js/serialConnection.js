@@ -111,17 +111,17 @@ async function sendWalk() {
   }
 
   // Speed und Delay auslesen
-  const speed = parseFloat(document.getElementById("speed").value);
-  const delay = parseInt(document.getElementById("delay").value);
+  const step = parseFloat(document.getElementById("step").value);
+  const duration = parseInt(document.getElementById("duration").value);
 
-  if (isNaN(speed) || isNaN(delay)) {
+  if (isNaN(step) || isNaN(duration)) {
     alert("Bitte gültige Werte für Speed und Delay eingeben!");
     return;
   }
 
   
-  //const cmd = `walk ${points.join(" ")} ${speed} ${delay}\n`;
-  const cmd = `walk ${points.join(" ")}\n`;
+  const cmd = `walk ${points.join(" ")} ${step} ${duration}\n`;
+  //const cmd = `walk ${points.join(" ")}\n`;
 
   await writer.write(new TextEncoder().encode(cmd));
   console.log("Gesendet:", cmd);

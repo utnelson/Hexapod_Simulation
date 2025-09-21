@@ -43,9 +43,7 @@ void solveIK(double x, double y, double z, int &servo1, int &servo2, int &servo3
   servo3 = constrain(servo3, 0, 180);
 }
 
-#define WALK_STEP 10 // Anzahl Schritte zwischen 0 und 1
-
-// Bézier-Funktion
+// Bézier-Punkt
 void bezierPoint(double t, double P0[3], double P1[3], double P2[3], double P3[3], double out[3])
 {
   double u = 1 - t;
@@ -54,43 +52,68 @@ void bezierPoint(double t, double P0[3], double P1[3], double P2[3], double P3[3
   out[2] = u * u * u * P0[2] + 3 * u * u * t * P1[2] + 3 * u * t * t * P2[2] + t * t * t * P3[2];
 }
 
-// Walk-Funktion mit 4 Punkten
-void walk(double points[4][3])
+// Lineare Interpolation (Gerade)
+void linearPoint(double t, double A[3], double B[3], double out[3])
+{
+  out[0] = (1 - t) * A[0] + t * B[0];
+  out[1] = (1 - t) * A[1] + t * B[1];
+  out[2] = (1 - t) * A[2] + t * B[2];
+}
+
+void walk(double points[4][3], int steps, unsigned long duration)
 {
   Serial.println("Walk gestartet.");
-
   int servo1, servo2, servo3;
 
   while (true)
-  { // Endlosschleife bis Stop
-    // Erst Punkt 0 anfahren
-    solveIK(points[0][0], points[0][1], points[0][2], servo1, servo2, servo3);
-    pwm.setPWM(0, 0, degToPWM(servo1));
-    pwm.setPWM(1, 0, degToPWM(servo2));
-    pwm.setPWM(2, 0, degToPWM(servo3));
-    delay(500);
+  {
+    unsigned long startTime = millis();
 
-    // Kurve entlangfahren (t von 0 bis 1)
-    for (int i = 0; i <= WALK_STEP; i++)
+    // --- 1. Teil: Bézier-Kurve P0 -> P3 ---
+    for (int i = 0; i <= steps; i++)
     {
-      double t = (double)i / WALK_STEP;
+      double t = (double)i / steps;
+      unsigned long targetTime = startTime + (unsigned long)(t * duration);
+
+      while (millis() < targetTime)
+      {
+        delay(1);
+      }
+
       double p[3];
       bezierPoint(t, points[0], points[1], points[2], points[3], p);
+
       solveIK(p[0], p[1], p[2], servo1, servo2, servo3);
       pwm.setPWM(0, 0, degToPWM(servo1));
       pwm.setPWM(1, 0, degToPWM(servo2));
       pwm.setPWM(2, 0, degToPWM(servo3));
-      delay(100); // Geschwindigkeit anpassen
     }
 
-    // Wieder zurück zu Punkt 0
-    solveIK(points[0][0], points[0][1], points[0][2], servo1, servo2, servo3);
-    pwm.setPWM(0, 0, degToPWM(servo1));
-    pwm.setPWM(1, 0, degToPWM(servo2));
-    pwm.setPWM(2, 0, degToPWM(servo3));
-    delay(500);
+    // --- 2. Teil: Gerade P3 -> P0 ---
+    double startP[3] = {points[3][0], points[3][1], points[3][2]};
+    double endP[3] = {points[0][0], points[0][1], points[0][2]};
 
-    // Optional: Abbruch wenn Stop-Kommando empfangen wird
+    startTime = millis();
+    for (int i = 0; i <= steps; i++)
+    {
+      double t = (double)i / steps;
+      unsigned long targetTime = startTime + (unsigned long)(t * duration);
+
+      while (millis() < targetTime)
+      {
+        delay(1);
+      }
+
+      double p[3];
+      linearPoint(t, startP, endP, p);
+
+      solveIK(p[0], p[1], p[2], servo1, servo2, servo3);
+      pwm.setPWM(0, 0, degToPWM(servo1));
+      pwm.setPWM(1, 0, degToPWM(servo2));
+      pwm.setPWM(2, 0, degToPWM(servo3));
+    }
+
+    // Stop prüfen
     if (Serial.available())
     {
       String input = Serial.readStringUntil('\n');
@@ -106,6 +129,7 @@ void walk(double points[4][3])
     }
   }
 }
+
 void setup()
 {
   Serial.begin(9600);
@@ -121,8 +145,6 @@ void setup()
 
 void loop()
 {
-
-  // Serial-Kommandos prüfen
   if (Serial.available())
   {
     String input = Serial.readStringUntil('\n');
@@ -161,25 +183,46 @@ void loop()
     }
     else if (cmd == "walk")
     {
-      // Parameter parsen: 12 Werte für x0..z3
       double pts[4][3];
+      int steps = 0;
+      unsigned long duration = 0;
+
       String params = input.substring(firstSpace + 1);
       int idx = 0;
-      for (int i = 0; i < 12; i++)
+
+      for (int i = 0; i < 14; i++)
       {
         int spaceIndex = params.indexOf(' ');
-        if (spaceIndex == -1 && i < 11)
+        if (spaceIndex == -1 && i < 13)
         {
-          Serial.println("Ungültiges Format für walk. Beispiel: walk x0 y0 z0 ... x3 y3 z3");
+          Serial.println("Ungültiges Format. Beispiel:");
+          Serial.println("walk x0 y0 z0 x1 y1 z1 x2 y2 z2 x3 y3 z3 steps duration");
           return;
         }
-        String valStr = (i < 11) ? params.substring(0, spaceIndex) : params;
-        pts[idx / 3][idx % 3] = valStr.toFloat();
-        if (i < 11)
+
+        String valStr = (i < 13) ? params.substring(0, spaceIndex) : params;
+
+        if (i < 12)
+        {
+          // Erste 12 Werte sind Punkte
+          pts[idx / 3][idx % 3] = valStr.toFloat();
+          idx++;
+        }
+        else if (i == 12)
+        {
+          // 13. Wert = steps
+          steps = valStr.toInt();
+        }
+        else if (i == 13)
+        {
+          // 14. Wert = duration
+          duration = valStr.toInt();
+        }
+
+        if (i < 13)
           params = params.substring(spaceIndex + 1);
-        idx++;
       }
-      walk(pts);
+      walk(pts, steps, duration);
     }
   }
 }
